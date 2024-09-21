@@ -6,10 +6,10 @@ function App() {
         <>
             <h1>Hello World</h1>
             <>
-                <Button variant="primary" />
-                <Button variant="secondary" />
-                <Button variant="success" />
-                <Button variant="danger" />
+                <Button variant="primaria" />
+                <Button variant="secundaria" />
+                <Button variant="sucesso" />
+                <Button variant="perigo" />
                 <Button />
             </>
         </>
