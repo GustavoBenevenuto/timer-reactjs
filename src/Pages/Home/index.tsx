@@ -12,12 +12,14 @@ const validacaoSchema = zod.object({
         .max(60, 'O ciclo precisa ser de no máximo 60 minutos.'),
 })
 
+type TypeValidacaoSchema = zod.infer<typeof validacaoSchema>
+
 export function Home() {
-    const { register, handleSubmit, watch, formState } = useForm({
+    const { register, handleSubmit, watch, formState } = useForm<TypeValidacaoSchema>({
         resolver: zodResolver(validacaoSchema),
     })
 
-    function salvar(form: any) {
+    function salvar(form: TypeValidacaoSchema) {
         console.log({ form })
     }
 
