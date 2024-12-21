@@ -1,7 +1,64 @@
-export function Historico(){
+import { HistoryContainer, HistoryList } from './styles'
+export function Historico() {
     return (
-        <>
-            <h1>Historico</h1>
-        </>
+        <HistoryContainer>
+            <h1>Meu histórico</h1>
+            <HistoryList>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tarefa</th>
+                            <th>Duração</th>
+                            <th>Duração</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Tarefa</td>
+                            <td>20 minutos</td>
+                            <td>Há 2 meses</td>
+                            <td>Concluído</td>
+                        </tr>
+                        <tr>
+                            <td>Tarefa</td>
+                            <td>20 minutos</td>
+                            <td>Há 2 meses</td>
+                            <td>Concluído</td>
+                        </tr>
+                        <tr>
+                            <td>Tarefa</td>
+                            <td>20 minutos</td>
+                            <td>Há 2 meses</td>
+                            <td>Concluído</td>
+                        </tr>
+                        <tr>
+                            <td>Tarefa</td>
+                            <td>20 minutos</td>
+                            <td>Há 2 meses</td>
+                            <td>Concluído</td>
+                        </tr>
+                        <tr>
+                            <td>Tarefa</td>
+                            <td>20 minutos</td>
+                            <td>Há 2 meses</td>
+                            <td>Concluído</td>
+                        </tr>
+                        <tr>
+                            <td>Tarefa</td>
+                            <td>20 minutos</td>
+                            <td>Há 2 meses</td>
+                            <td>Concluído</td>
+                        </tr>
+                        <tr>
+                            <td>Tarefa</td>
+                            <td>20 minutos</td>
+                            <td>Há 2 meses</td>
+                            <td>Concluído</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </HistoryList>
+        </HistoryContainer>
     )
 }
