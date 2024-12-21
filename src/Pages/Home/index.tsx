@@ -1,5 +1,5 @@
-import { Play } from "phosphor-react";
-import { CountdownContainer, FormContainer, HomeContainer, MinutesInput, Separator, StartButton, TaskInput } from "./styles";
+import { HandPalm, Play } from "phosphor-react";
+import { CountdownContainer, FormContainer, HomeContainer, MinutesInput, Separator, StartButton, StopButton, TaskInput } from "./styles";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as zod from "zod";
@@ -21,6 +21,7 @@ interface ICiclo {
     task: string;
     minutes: number;
     dataInicial: Date
+    dataInterrompida?: Date;
 }
 
 export function Home() {
@@ -67,6 +68,19 @@ export function Home() {
         setSegundosPassados(0)
     }
 
+    function pararCiclo() {
+        setCiclos(
+          ciclos.map((ciclo) => {
+            if (ciclo.id === idCicloAtivo) {
+              return { ...ciclo, dataInterrompida: new Date() }
+            } else {
+              return ciclo
+            }
+          }),
+        )
+        setIdCicloAtivo(null)
+      }
+
     const totalSegundos = cicloAtivo ? cicloAtivo.minutes * 60 : 0
     const segundosAtuais = cicloAtivo ? totalSegundos - segundosPassados : 0
     const qtdMinutos = Math.floor(segundosAtuais / 60)
@@ -89,6 +103,7 @@ export function Home() {
                         id="task"
                         placeholder="Dê um nome para o seu projeto"
                         list="sugestao-task"
+                        disabled={!!cicloAtivo}
                         {...register('task')}
                     />
                     <datalist id="sugestao-task">
@@ -105,6 +120,7 @@ export function Home() {
                         step="5"
                         min="5"
                         max="60"
+                        disabled={!!cicloAtivo}
                         {...register('minutes', { valueAsNumber: true })}
                     />
                     <span>minutos.</span>
@@ -116,10 +132,17 @@ export function Home() {
                     <span>{segundos[0]}</span>
                     <span>{segundos[1]}</span>
                 </CountdownContainer>
-                <StartButton type="submit" disabled={!watch('task')}>
-                    <Play size={24} />
-                    Começar
-                </StartButton>
+                {cicloAtivo ?
+                    <StopButton type="button" onClick={pararCiclo}>
+                        <HandPalm size={24} />
+                        Parar
+                    </StopButton>
+                    :
+                    <StartButton type="submit" disabled={!watch('task')}>
+                        <Play size={24} />
+                        Começar
+                    </StartButton>
+                }
             </form>
         </HomeContainer>
     )
