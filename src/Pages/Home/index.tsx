@@ -3,6 +3,8 @@ import { CountdownContainer, FormContainer, HomeContainer, MinutesInput, Separat
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as zod from "zod";
+import { useEffect, useState } from "react";
+import { differenceInSeconds } from "date-fns";
 
 const validacaoSchema = zod.object({
     task: zod.string().min(1, 'Informe a tarefa'),
@@ -14,7 +16,18 @@ const validacaoSchema = zod.object({
 
 type TypeValidacaoSchema = zod.infer<typeof validacaoSchema>
 
+interface ICiclo {
+    id: string;
+    task: string;
+    minutes: number;
+    dataInicial: Date
+}
+
 export function Home() {
+    const [ciclos, setCiclos] = useState<ICiclo[]>([])
+    const [idCicloAtivo, setIdCicloAtivo] = useState<string | null>(null)
+    const [segundosPassados, setSegundosPassados] = useState<number>(0)
+
     const { register, handleSubmit, watch, formState, reset } = useForm<TypeValidacaoSchema>({
         resolver: zodResolver(validacaoSchema),
         defaultValues: {
@@ -23,10 +36,49 @@ export function Home() {
         }
     })
 
+    const cicloAtivo = ciclos.find(ciclo => ciclo.id == idCicloAtivo)
+
+    useEffect(() => {
+        let intervalo: number
+        if (cicloAtivo) {
+            intervalo = setInterval(() => {
+                setSegundosPassados(
+                    differenceInSeconds(new Date(), cicloAtivo.dataInicial),
+                )
+            }, 1000)
+        }
+
+        return () => {
+            clearInterval(intervalo)
+        }
+    }, [cicloAtivo])
+
     function salvar(form: TypeValidacaoSchema) {
-        console.log({ form })
+        const novoCiclo: ICiclo = {
+            id: String(new Date().getTime()),
+            minutes: form.minutes,
+            task: form.task,
+            dataInicial: new Date(),
+        }
         reset()
+
+        setCiclos(prev => [...prev, novoCiclo])
+        setIdCicloAtivo(novoCiclo.id)
+        setSegundosPassados(0)
     }
+
+    const totalSegundos = cicloAtivo ? cicloAtivo.minutes * 60 : 0
+    const segundosAtuais = cicloAtivo ? totalSegundos - segundosPassados : 0
+    const qtdMinutos = Math.floor(segundosAtuais / 60)
+    const qtdSegundos = segundosAtuais % 60
+    const minutos = String(qtdMinutos).padStart(2, '0')
+    const segundos = String(qtdSegundos).padStart(2, '0')
+
+    useEffect(() => {
+        if (cicloAtivo) {
+            document.title = `${minutos}:${segundos}`
+        }
+    }, [minutos, segundos, cicloAtivo])
 
     return (
         <HomeContainer>
@@ -58,11 +110,11 @@ export function Home() {
                     <span>minutos.</span>
                 </FormContainer>
                 <CountdownContainer>
-                    <span>0</span>
-                    <span>0</span>
+                    <span>{minutos[0]}</span>
+                    <span>{minutos[1]}</span>
                     <Separator>:</Separator>
-                    <span>0</span>
-                    <span>0</span>
+                    <span>{segundos[0]}</span>
+                    <span>{segundos[1]}</span>
                 </CountdownContainer>
                 <StartButton type="submit" disabled={!watch('task')}>
                     <Play size={24} />
