@@ -57,7 +57,7 @@ export function Home() {
                     <span>0</span>
                     <span>0</span>
                 </CountdownContainer>
-                <StartButton type="submit">
+                <StartButton type="submit" disabled={!watch('task')}>
                     <Play size={24} />
                     Começar
                 </StartButton>
