@@ -1,7 +1,7 @@
 import { FormContainer, MinutesInput, TaskInput } from './styles';
 import { useContext } from 'react';
-import { CicloContext } from '../..';
 import { useFormContext } from 'react-hook-form';
+import { CicloContext } from '../../../../context/CicloContext';
 
 
 export function NovoCicloForm() {
