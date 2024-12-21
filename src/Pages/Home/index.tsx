@@ -20,8 +20,9 @@ interface ICiclo {
     id: string;
     task: string;
     minutes: number;
-    dataInicial: Date
+    dataInicial: Date;
     dataInterrompida?: Date;
+    dataConcluida?: Date;
 }
 
 export function Home() {
@@ -38,21 +39,38 @@ export function Home() {
     })
 
     const cicloAtivo = ciclos.find(ciclo => ciclo.id == idCicloAtivo)
+    const totalSegundos = cicloAtivo ? cicloAtivo.minutes * 60 : 0
 
     useEffect(() => {
         let intervalo: number
         if (cicloAtivo) {
             intervalo = setInterval(() => {
-                setSegundosPassados(
-                    differenceInSeconds(new Date(), cicloAtivo.dataInicial),
+                const diferencaSegundos = differenceInSeconds(
+                    new Date(),
+                    cicloAtivo.dataInicial,
                 )
+                if (diferencaSegundos >= totalSegundos) {
+                    setCiclos((state) =>
+                        state.map((ciclo) => {
+                            if (ciclo.id === idCicloAtivo) {
+                                return { ...ciclo, dataConcluida: new Date() }
+                            } else {
+                                return ciclo
+                            }
+                        }),
+                    )
+                    setSegundosPassados(totalSegundos)
+                    clearInterval(intervalo)
+                } else {
+                    setSegundosPassados(diferencaSegundos)
+                }
             }, 1000)
         }
 
         return () => {
             clearInterval(intervalo)
         }
-    }, [cicloAtivo])
+    }, [cicloAtivo, totalSegundos, idCicloAtivo])
 
     function salvar(form: TypeValidacaoSchema) {
         const novoCiclo: ICiclo = {
@@ -70,18 +88,17 @@ export function Home() {
 
     function pararCiclo() {
         setCiclos(
-          ciclos.map((ciclo) => {
-            if (ciclo.id === idCicloAtivo) {
-              return { ...ciclo, dataInterrompida: new Date() }
-            } else {
-              return ciclo
-            }
-          }),
+            ciclos.map((ciclo) => {
+                if (ciclo.id === idCicloAtivo) {
+                    return { ...ciclo, dataInterrompida: new Date() }
+                } else {
+                    return ciclo
+                }
+            }),
         )
         setIdCicloAtivo(null)
-      }
+    }
 
-    const totalSegundos = cicloAtivo ? cicloAtivo.minutes * 60 : 0
     const segundosAtuais = cicloAtivo ? totalSegundos - segundosPassados : 0
     const qtdMinutos = Math.floor(segundosAtuais / 60)
     const qtdSegundos = segundosAtuais % 60
