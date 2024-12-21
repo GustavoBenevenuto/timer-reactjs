@@ -15,12 +15,17 @@ const validacaoSchema = zod.object({
 type TypeValidacaoSchema = zod.infer<typeof validacaoSchema>
 
 export function Home() {
-    const { register, handleSubmit, watch, formState } = useForm<TypeValidacaoSchema>({
+    const { register, handleSubmit, watch, formState, reset } = useForm<TypeValidacaoSchema>({
         resolver: zodResolver(validacaoSchema),
+        defaultValues: {
+            minutes: 0,
+            task: ''
+        }
     })
 
     function salvar(form: TypeValidacaoSchema) {
         console.log({ form })
+        reset()
     }
 
     return (
