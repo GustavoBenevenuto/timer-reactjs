@@ -1,13 +1,5 @@
 import React, { createContext, useReducer, useState } from "react";
-
-interface ICiclo {
-    id: string;
-    task: string;
-    minutes: number;
-    dataInicial: Date;
-    dataInterrompida?: Date;
-    dataConcluida?: Date;
-}
+import { ActionTypesEnum, ciclosReducer, ICiclo } from "../reducers/ciclos";
 
 interface ICriaCiclo {
     task: string;
@@ -29,57 +21,11 @@ interface ICicloContextProviderProps {
     children: React.ReactNode
 }
 
-interface ICiclosState {
-    ciclos: ICiclo[];
-    idCicloAtivo: string | null;
-}
-
 export const CicloContext = createContext<ICicloContext>({} as ICicloContext)
 
 export function CicloContextProvider({ children }: ICicloContextProviderProps) {
 
-    const [ciclosState, dispatch] = useReducer((state: ICiclosState, action: any) => {
-        switch (action.type) {
-            case 'ADD_NOVO_CICLO': {
-                return {
-                    ...state,
-                    idCicloAtivo: action.payload.novoCiclo.id,
-                    ciclos: [...state.ciclos, action.payload.novoCiclo]
-                }
-            }
-            case 'PARAR_CICLO': {
-                return {
-                    ...state,
-                    idCicloAtivo: null,
-                    ciclos: state.ciclos.map((ciclo) => {
-                        if (ciclo.id === state.idCicloAtivo) {
-                            return { ...ciclo, dataInterrompida: new Date() }
-                        } else {
-                            return ciclo
-                        }
-                    }),
-                }
-            }
-            case 'FINALIZA_CICLO_ATUAL': {
-                return {
-                    ...state,
-                    idCicloAtivo: null,
-                    ciclos: state.ciclos.map((ciclo) => {
-                        if (ciclo.id === state.idCicloAtivo) {
-                            return { ...ciclo, dataConcluida: new Date() }
-                        } else {
-                            return ciclo
-                        }
-                    }),
-                }
-            }
-            default: {
-                return state
-            }
-        }
-
-        return state
-    }, {
+    const [ciclosState, dispatch] = useReducer( ciclosReducer, {
         ciclos: [],
         idCicloAtivo: null
     })
@@ -102,7 +48,7 @@ export function CicloContextProvider({ children }: ICicloContextProviderProps) {
             dataInicial: new Date(),
         }
         dispatch({
-            type: 'ADD_NOVO_CICLO',
+            type: ActionTypesEnum.ADD_NOVO_CICLO,
             payload: {
                 novoCiclo
             }
@@ -112,7 +58,7 @@ export function CicloContextProvider({ children }: ICicloContextProviderProps) {
 
     function pararCiclo() {
         dispatch({
-            type: 'PARAR_CICLO',
+            type: ActionTypesEnum.PARAR_CICLO,
             payload: {
                 idCicloAtivo
             }
@@ -121,7 +67,7 @@ export function CicloContextProvider({ children }: ICicloContextProviderProps) {
 
     function finalizaCicloAtual() {
         dispatch({
-            type: 'FINALIZA_CICLO_ATUAL',
+            type: ActionTypesEnum.FINALIZA_CICLO_ATUAL,
             payload: {
                 idCicloAtivo
             }
