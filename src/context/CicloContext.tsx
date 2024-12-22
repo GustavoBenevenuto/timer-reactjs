@@ -39,25 +39,42 @@ export const CicloContext = createContext<ICicloContext>({} as ICicloContext)
 export function CicloContextProvider({ children }: ICicloContextProviderProps) {
 
     const [ciclosState, dispatch] = useReducer((state: ICiclosState, action: any) => {
-        if (action.type == 'ADD_NOVO_CICLO') {
-            return {
-                ...state,
-                idCicloAtivo: action.payload.novoCiclo.id,
-                ciclos: [...state.ciclos, action.payload.novoCiclo]
+        switch (action.type) {
+            case 'ADD_NOVO_CICLO': {
+                return {
+                    ...state,
+                    idCicloAtivo: action.payload.novoCiclo.id,
+                    ciclos: [...state.ciclos, action.payload.novoCiclo]
+                }
             }
-        }
-        
-        if (action.type == 'PARAR_CICLO') {
-            return {
-                ...state,
-                idCicloAtivo: null,
-                ciclos: state.ciclos.map((ciclo) => {
-                    if (ciclo.id === state.idCicloAtivo) {
-                        return { ...ciclo, dataInterrompida: new Date() }
-                    } else {
-                        return ciclo
-                    }
-                }),
+            case 'PARAR_CICLO': {
+                return {
+                    ...state,
+                    idCicloAtivo: null,
+                    ciclos: state.ciclos.map((ciclo) => {
+                        if (ciclo.id === state.idCicloAtivo) {
+                            return { ...ciclo, dataInterrompida: new Date() }
+                        } else {
+                            return ciclo
+                        }
+                    }),
+                }
+            }
+            case 'FINALIZA_CICLO_ATUAL': {
+                return {
+                    ...state,
+                    idCicloAtivo: null,
+                    ciclos: state.ciclos.map((ciclo) => {
+                        if (ciclo.id === state.idCicloAtivo) {
+                            return { ...ciclo, dataConcluida: new Date() }
+                        } else {
+                            return ciclo
+                        }
+                    }),
+                }
+            }
+            default: {
+                return state
             }
         }
 
@@ -68,7 +85,7 @@ export function CicloContextProvider({ children }: ICicloContextProviderProps) {
     })
 
     const [segundosPassados, setSegundosPassados] = useState<number>(0)
-    
+
     const { ciclos, idCicloAtivo } = ciclosState
 
     const cicloAtivo = ciclos.find(ciclo => ciclo.id == idCicloAtivo)
@@ -90,7 +107,6 @@ export function CicloContextProvider({ children }: ICicloContextProviderProps) {
                 novoCiclo
             }
         })
-        // setCiclos(prev => [...prev, novoCiclo])
         setSegundosPassados(0)
     }
 
@@ -110,15 +126,6 @@ export function CicloContextProvider({ children }: ICicloContextProviderProps) {
                 idCicloAtivo
             }
         })
-        // setCiclos((state) =>
-        //     state.map((ciclo) => {
-        //         if (ciclo.id === idCicloAtivo) {
-        //             return { ...ciclo, dataConcluida: new Date() }
-        //         } else {
-        //             return ciclo
-        //         }
-        //     }),
-        // )
     }
 
     return (
