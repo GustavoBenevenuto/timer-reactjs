@@ -1,5 +1,6 @@
 import React, { createContext, useReducer, useState } from "react";
-import { ActionTypesEnum, ciclosReducer, ICiclo } from "../reducers/ciclos";
+import { ciclosReducer, ICiclo } from "../reducers/ciclos/reducer";
+import { ActionTypesEnum, addNovoCicloAction, finalizaCicloAction, pararCicloAction } from "../reducers/ciclos/actions";
 
 interface ICriaCiclo {
     task: string;
@@ -47,31 +48,16 @@ export function CicloContextProvider({ children }: ICicloContextProviderProps) {
             task: form.task,
             dataInicial: new Date(),
         }
-        dispatch({
-            type: ActionTypesEnum.ADD_NOVO_CICLO,
-            payload: {
-                novoCiclo
-            }
-        })
+        dispatch(addNovoCicloAction(novoCiclo))
         setSegundosPassados(0)
     }
 
     function pararCiclo() {
-        dispatch({
-            type: ActionTypesEnum.PARAR_CICLO,
-            payload: {
-                idCicloAtivo
-            }
-        })
+        dispatch(pararCicloAction())
     }
 
     function finalizaCicloAtual() {
-        dispatch({
-            type: ActionTypesEnum.FINALIZA_CICLO_ATUAL,
-            payload: {
-                idCicloAtivo
-            }
-        })
+        dispatch(finalizaCicloAction())
     }
 
     return (
