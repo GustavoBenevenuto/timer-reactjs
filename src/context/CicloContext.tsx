@@ -1,4 +1,4 @@
-import React, { createContext, useState } from "react";
+import React, { createContext, useReducer, useState } from "react";
 
 interface ICiclo {
     id: string;
@@ -29,30 +29,52 @@ interface ICicloContextProviderProps {
     children: React.ReactNode
 }
 
+interface ICiclosState {
+    ciclos: ICiclo[];
+    idCicloAtivo: string | null;
+}
+
 export const CicloContext = createContext<ICicloContext>({} as ICicloContext)
 
-export function CicloContextProvider({children}: ICicloContextProviderProps) {
+export function CicloContextProvider({ children }: ICicloContextProviderProps) {
 
-    const [ciclos, setCiclos] = useState<ICiclo[]>([])
-    const [idCicloAtivo, setIdCicloAtivo] = useState<string | null>(null)
+    const [ciclosState, dispatch] = useReducer((state: ICiclosState, action: any) => {
+        if (action.type == 'ADD_NOVO_CICLO') {
+            return {
+                ...state,
+                idCicloAtivo: action.payload.novoCiclo.id,
+                ciclos: [...state.ciclos, action.payload.novoCiclo]
+            }
+        }
+        
+        if (action.type == 'PARAR_CICLO') {
+            return {
+                ...state,
+                idCicloAtivo: null,
+                ciclos: state.ciclos.map((ciclo) => {
+                    if (ciclo.id === state.idCicloAtivo) {
+                        return { ...ciclo, dataInterrompida: new Date() }
+                    } else {
+                        return ciclo
+                    }
+                }),
+            }
+        }
+
+        return state
+    }, {
+        ciclos: [],
+        idCicloAtivo: null
+    })
+
     const [segundosPassados, setSegundosPassados] = useState<number>(0)
+    
+    const { ciclos, idCicloAtivo } = ciclosState
 
     const cicloAtivo = ciclos.find(ciclo => ciclo.id == idCicloAtivo)
 
     function setSegPassados(segundo: number) {
         setSegundosPassados(segundo)
-    }
-
-    function finalizaCicloAtual() {
-        setCiclos((state) =>
-            state.map((ciclo) => {
-                if (ciclo.id === idCicloAtivo) {
-                    return { ...ciclo, dataConcluida: new Date() }
-                } else {
-                    return ciclo
-                }
-            }),
-        )
     }
 
     function criarNovoCiclo(form: ICriaCiclo) {
@@ -62,22 +84,41 @@ export function CicloContextProvider({children}: ICicloContextProviderProps) {
             task: form.task,
             dataInicial: new Date(),
         }
-        setCiclos(prev => [...prev, novoCiclo])
-        setIdCicloAtivo(novoCiclo.id)
+        dispatch({
+            type: 'ADD_NOVO_CICLO',
+            payload: {
+                novoCiclo
+            }
+        })
+        // setCiclos(prev => [...prev, novoCiclo])
         setSegundosPassados(0)
     }
 
     function pararCiclo() {
-        setCiclos(
-            ciclos.map((ciclo) => {
-                if (ciclo.id === idCicloAtivo) {
-                    return { ...ciclo, dataInterrompida: new Date() }
-                } else {
-                    return ciclo
-                }
-            }),
-        )
-        setIdCicloAtivo(null)
+        dispatch({
+            type: 'PARAR_CICLO',
+            payload: {
+                idCicloAtivo
+            }
+        })
+    }
+
+    function finalizaCicloAtual() {
+        dispatch({
+            type: 'FINALIZA_CICLO_ATUAL',
+            payload: {
+                idCicloAtivo
+            }
+        })
+        // setCiclos((state) =>
+        //     state.map((ciclo) => {
+        //         if (ciclo.id === idCicloAtivo) {
+        //             return { ...ciclo, dataConcluida: new Date() }
+        //         } else {
+        //             return ciclo
+        //         }
+        //     }),
+        // )
     }
 
     return (
